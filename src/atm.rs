@@ -4,24 +4,60 @@ use std::collections::HashMap;
 
 pub struct Atm {
     account: HashMap<String, String>,
+    additional_balance_amount: f32,
 }
 
 impl Atm {
     pub fn init() -> Result<Atm, std::io::Error> {
         let mut account_map = HashMap::new();
+        let additional_balance = 2000.0;
         account_map.insert("name".into(), "Burcak Kam".into());
         account_map.insert("account_no".into(), "987654".into());
         account_map.insert("balance".into(), "3000".into());
-        account_map.insert("additional_balance".into(), "2000".into());
+        account_map.insert("additional_balance".into(), additional_balance.to_string());
 
         Ok(Atm {
             account: account_map,
+            additional_balance_amount: additional_balance,
         })
     }
     pub fn deposit(&mut self) -> std::io::Result<()> {
         //TO DO: Implement
         println!("This operation is not implemented yet.");
 
+        let mut buffer = String::new();
+        std::io::stdin().read_line(&mut buffer)?;
+        let amount = buffer.trim().parse::<f32>().unwrap();
+
+        let mut additional_balance = self.account["additional_balance"].parse::<f32>().unwrap();
+
+        let additional_balance_top_up_amount = self.additional_balance_amount - additional_balance;
+        if additional_balance_top_up_amount > 0.0 {
+            if amount <= additional_balance_top_up_amount {
+                additional_balance += amount;
+                self.account.insert(
+                    "additional_balance".to_owned(),
+                    additional_balance.to_string(),
+                );
+            } else {
+                self.account.insert(
+                    "additional_balance".to_owned(),
+                    self.additional_balance_amount.to_string(),
+                );
+                let mut balance = self.account["balance"].parse::<f32>().unwrap();
+                balance += amount - additional_balance_top_up_amount;
+                self.account
+                    .insert("balance".to_owned(), balance.to_string());
+            }
+        } else {
+            let mut balance = self.account["balance"].parse::<f32>().unwrap();
+            balance += amount;
+            self.account
+                .insert("balance".to_owned(), balance.to_string());
+        }
+
+        self.show_account_info()?;
+        
         Ok(())
     }
 
@@ -46,7 +82,7 @@ impl Atm {
             buffer = String::new();
             std::io::stdin().read_line(&mut buffer)?;
             let answer = buffer.trim();
-            
+
             match answer {
                 "Y" => {
                     let mut additional_balance =
@@ -70,6 +106,9 @@ impl Atm {
                 _ => println!("Process is cancelled."),
             }
         }
+
+        self.show_account_info()?;
+
         Ok(())
     }
 
