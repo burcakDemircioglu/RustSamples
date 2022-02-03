@@ -1,4 +1,7 @@
-// bankamatik fonkiyonu yazılacak, çekmek istenen tutar bakiye'den yüksek ise ek hesap kullanılsın mı diye kullanıcıya sorsun.
+// Question: Write an ATM operation
+// Details: You may use a static account
+// Important: If the requested withdraw amount is higher than the current balance 
+// ask for the additional balance.
 
 use std::collections::HashMap;
 
